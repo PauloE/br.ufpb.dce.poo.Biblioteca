@@ -12,10 +12,24 @@ import java.util.Date;
 
 
 public class Biblioteca {
-	Configuracao configuracao = Configuracao.getInstance();
-	List<Livro> livros;
-	List<Emprestimo> emprestimosAtivos;
-	List<Usuario> usuarios;
+	Private Configuracao configuracao = Configuracao.getInstance();
+	Private List<Livro> livros;
+	Private List<Emprestimo> emprestimosAtivos;
+	Private List<Usuario> usuarios;
+	Private Static Biblioteca singleton;
+	
+	private Biblioteca {
+		this.livros = new LinkedList<Livro>();
+		this.emprestimosAtivos = new LinkedList<Emprestimo>();
+		this.usuarios = new LinkedList<Usuario>();
+	}
+	
+	public static Biblioteca getInstance(){
+		if (singleton == null){
+			this.singleton = new Biblioteca();
+		}
+		return singleton;
+	}
 	
 	public void CadastrarLivro (Livro l){
 		for (Livro lv: this.livros){
@@ -29,7 +43,7 @@ public class Biblioteca {
 	
 	public void CadastrarUsuario (Usuario u) throws UsuarioJaExisteException{
 		if(this.usuarios.contains(u)){
-			throw new UsuarioJaExisteException ("O usuário já existe.");
+			throw new UsuarioJaExisteException ("O usuï¿½rio jï¿½ existe.");
 		}
 		this.usuarios.add(u);
 	}
@@ -40,7 +54,7 @@ public class Biblioteca {
 				return u;
 			}
 		}
-		throw new UsuarioInexistenteException ("Este usuário não existe");
+		throw new UsuarioInexistenteException ("Este usuï¿½rio nï¿½o existe");
 	}
 	
 	public Livro getLivro (String codLivro) throws LivroInexistenteException{
@@ -49,7 +63,7 @@ public class Biblioteca {
 				return l;
 			}
 		}
-		throw new LivroInexistenteException ("Este Livro não está cadastrado");
+		throw new LivroInexistenteException ("Este Livro nï¿½o estï¿½ cadastrado");
 	}
 	
 	public List<Emprestimo> listarEmprestimosEmAtraso () throws ListaDeAtrasoInexistenteException{
@@ -61,7 +75,7 @@ public class Biblioteca {
 			}
 		}
 		if (atraso.size() == 0) {
-			throw new ListaDeAtrasoInexistenteException ("Não existem usuarios em atraso");
+			throw new ListaDeAtrasoInexistenteException ("Nï¿½o existem usuarios em atraso");
 		}
 		return atraso;
 		
@@ -105,11 +119,11 @@ public class Biblioteca {
 	
 	public void emprestarLivro (Usuario u, Livro lv) throws NumeroDeLivrosEmprestadosException, UsuarioEmAtrasoException, QuantidadeDeLivrosInsuficienteException, ListaDeAtrasoInexistenteException{
 		if (u.getEmprestimos().size() == 3){
-			throw new NumeroDeLivrosEmprestadosException ("Usuário atingiu limite de emprestimos");
+			throw new NumeroDeLivrosEmprestadosException ("Usuï¿½rio atingiu limite de emprestimos");
 		}
 		for (Emprestimo e: this.listarEmprestimosEmAtraso()){
 			if (e.getUsuario().equals(u)){
-				throw new UsuarioEmAtrasoException ("O Caboclo está devendo, cobre ao danado!");
+				throw new UsuarioEmAtrasoException ("O Caboclo estï¿½ devendo, cobre ao danado!");
 			}
 		}
 		for (Livro l: this.livros){
@@ -150,13 +164,13 @@ public class Biblioteca {
 			}
 		}
 		if (emprestou == false){
-			throw new EmprestimoInexistenteException ("O usuário não possui o emprestimo referênte.");
+			throw new EmprestimoInexistenteException ("O usuï¿½rio nï¿½o possui o emprestimo referï¿½nte.");
 		}
 		
 	}
 	
 	
-	//##########################       PERSISTÊNCIA DE ARQUIVOS      ############################################
+	//##########################       PERSISTENCIA DE ARQUIVOS      ############################################
 	
 	public void gravarEmprestimos(String nomeArquivo) throws IOException {
 		BufferedWriter gravador = null;
@@ -198,7 +212,7 @@ public class Biblioteca {
 			
 			
 			do {
-				matricula = leitor.readLine(); // lê a próxima linha do arquivo: matricula do usuário
+				matricula = leitor.readLine(); // lï¿½ a prï¿½xima linha do arquivo: matricula do usuï¿½rio
 				codigoLivro = leitor.readLine();
 				
 				diaEmprestimo = leitor.readLine();
