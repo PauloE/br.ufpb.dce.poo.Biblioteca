@@ -358,7 +358,7 @@ public class Biblioteca {
 		} 
 	}
 	
-	public void carregarLivroEmArquivo(String arquivoLivro)throws IOException {
+	public void carregarLivroDeArquivo(String arquivoLivro)throws IOException {
 
 		BufferedReader leitor = null; 
 		try { 
