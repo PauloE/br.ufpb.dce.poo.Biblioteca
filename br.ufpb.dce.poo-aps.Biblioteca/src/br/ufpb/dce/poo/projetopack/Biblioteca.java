@@ -75,9 +75,7 @@ public class Biblioteca {
 				atraso.add(e);
 			}
 		}
-		if (atraso.size() == 0) {
-			throw new ListaDeAtrasoInexistenteException ("N�o existem usuarios em atraso");
-		}
+
 		return atraso;
 		
 	}
@@ -122,14 +120,12 @@ public class Biblioteca {
 		if (u.getEmprestimos().size() == 3){
 			throw new NumeroDeLivrosEmprestadosException ("Usu�rio atingiu limite de emprestimos");
 		}
-		for (Emprestimo e: this.listarEmprestimosEmAtraso()){
-			if (e.getUsuario().equals(u)){
-				throw new UsuarioEmAtrasoException ("O Caboclo est� devendo, cobre ao danado!");
-			}
+		if(this.listarEmprestimosEmAtraso().contains(u)){
+			throw new UsuarioEmAtrasoException("O usuário está com devolução em atraso.");
 		}
 		for (Livro l: this.livros){
 			if (l.getCodigo().equals(lv.getCodigo()) && l.getQuantidade() == 1){
-				throw new QuantidadeDeLivrosInsuficienteException("Quantidade de livros insuficientes para emprestimo.");
+				throw new QuantidadeDeLivrosInsuficienteException("Quantidade de livros insuficiente para emprestimo.");
 			}
 		}
 		
