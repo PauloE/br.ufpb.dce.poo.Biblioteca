@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Calendar;
 import java.util.Date;
 
+import ExceptionPackage.*;
 
 public class Biblioteca {
 	private Configuracao configuracao = Configuracao.getInstance();
