@@ -12,13 +12,13 @@ import java.util.Date;
 
 
 public class Biblioteca {
-	Private Configuracao configuracao = Configuracao.getInstance();
-	Private List<Livro> livros;
-	Private List<Emprestimo> emprestimosAtivos;
-	Private List<Usuario> usuarios;
-	Private Static Biblioteca singleton;
+	private Configuracao configuracao = Configuracao.getInstance();
+	private List<Livro> livros;
+	private List<Emprestimo> emprestimosAtivos;
+	private List<Usuario> usuarios;
+	private Static Biblioteca singleton;
 	
-	private Biblioteca {
+	private Biblioteca() {
 		this.livros = new LinkedList<Livro>();
 		this.emprestimosAtivos = new LinkedList<Emprestimo>();
 		this.usuarios = new LinkedList<Usuario>();
