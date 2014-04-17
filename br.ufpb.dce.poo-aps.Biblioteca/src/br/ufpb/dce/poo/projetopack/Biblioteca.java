@@ -16,7 +16,7 @@ public class Biblioteca {
 	private List<Livro> livros;
 	private List<Emprestimo> emprestimosAtivos;
 	private List<Usuario> usuarios;
-	private Static Biblioteca singleton;
+	private static Biblioteca singleton;
 	
 	private Biblioteca() {
 		this.livros = new LinkedList<Livro>();
