@@ -44,7 +44,7 @@ public class Biblioteca {
 	
 	public void CadastrarUsuario (Usuario u) throws UsuarioJaExisteException{
 		if(this.usuarios.contains(u)){
-			throw new UsuarioJaExisteException ("O usu�rio j� existe.");
+			throw new UsuarioJaExisteException ("O usuario ja existe");
 		}
 		this.usuarios.add(u);
 	}
@@ -55,7 +55,7 @@ public class Biblioteca {
 				return u;
 			}
 		}
-		throw new UsuarioInexistenteException ("Este usu�rio n�o existe");
+		throw new UsuarioInexistenteException ("Este usuario não existe.");
 	}
 	
 	public Livro getLivro (String codLivro) throws LivroInexistenteException{
@@ -64,7 +64,7 @@ public class Biblioteca {
 				return l;
 			}
 		}
-		throw new LivroInexistenteException ("Este Livro n�o est� cadastrado");
+		throw new LivroInexistenteException ("Este livro nao esta cadastrado";
 	}
 	
 	public List<Emprestimo> listarEmprestimosEmAtraso () throws ListaDeAtrasoInexistenteException{
@@ -118,10 +118,10 @@ public class Biblioteca {
 	
 	public void emprestarLivro (Usuario u, Livro lv) throws NumeroDeLivrosEmprestadosException, UsuarioEmAtrasoException, QuantidadeDeLivrosInsuficienteException, ListaDeAtrasoInexistenteException{
 		if (u.getEmprestimos().size() == 3){
-			throw new NumeroDeLivrosEmprestadosException ("Usu�rio atingiu limite de emprestimos");
+			throw new NumeroDeLivrosEmprestadosException ("Usuario atingiu limite de emprestimos");
 		}
 		if(this.listarEmprestimosEmAtraso().contains(u)){
-			throw new UsuarioEmAtrasoException("O usuário está com devolução em atraso.");
+			throw new UsuarioEmAtrasoException("O usuario esta com devoluçao em atraso.");
 		}
 		for (Livro l: this.livros){
 			if (l.getCodigo().equals(lv.getCodigo()) && l.getQuantidade() == 1){
@@ -161,7 +161,7 @@ public class Biblioteca {
 			}
 		}
 		if (emprestou == false){
-			throw new EmprestimoInexistenteException ("O usu�rio n�o possui o emprestimo refer�nte.");
+			throw new EmprestimoInexistenteException ("O usuario nao possui o emprestimo referente.");
 		}
 		
 	}
@@ -209,7 +209,7 @@ public class Biblioteca {
 			
 			
 			do {
-				matricula = leitor.readLine(); // l� a pr�xima linha do arquivo: matricula do usu�rio
+				matricula = leitor.readLine(); // le a proxima linha do arquivo: matricula do usuario
 				codigoLivro = leitor.readLine();
 				
 				diaEmprestimo = leitor.readLine();
@@ -372,7 +372,7 @@ public class Biblioteca {
 					String autor = leitor.readLine(); 
 					String classificacao = leitor.readLine(); 
 					int quantidade = leitor.read(); 
-					Livro l = new Livro (nomeDoLivro, autor, codigo, classificacao,quantidade); 
+					Livro l = new Livro (nomeDoLivro, autor, codigo, quantidade,classificacao); 
 					this.CadastrarLivro(l); 
 				} 
 			} while (nomeDoLivro!= null); 
