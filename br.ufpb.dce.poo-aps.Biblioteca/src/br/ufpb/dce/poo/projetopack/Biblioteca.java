@@ -172,7 +172,7 @@ public class Biblioteca {
 	
 	//##########################       PERSISTENCIA DE ARQUIVOS      ############################################
 	
-	public void gravarEmprestimos(String nomeArquivo) throws IOException {
+	public void gravarEmprestimosEmArquivo(String nomeArquivo) throws IOException {
 		BufferedWriter gravador = null;
 		try {
 			gravador = new BufferedWriter(new FileWriter("C:\\date\\datas.txt"));
