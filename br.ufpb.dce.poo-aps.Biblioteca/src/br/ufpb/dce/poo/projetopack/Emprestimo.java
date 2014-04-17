@@ -18,12 +18,12 @@ public class Emprestimo {
 	
 	
 	public Usuario getUsuario() {
-		return usuario;
+		return this.usuario;
 	}
 
 
 	public Livro getLivro() {
-		return livro;
+		return this.livro;
 	}
 
 
