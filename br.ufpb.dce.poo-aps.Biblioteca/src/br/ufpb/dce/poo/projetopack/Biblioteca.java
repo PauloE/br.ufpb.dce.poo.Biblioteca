@@ -26,7 +26,7 @@ public class Biblioteca {
 	
 	public static Biblioteca getInstance(){
 		if (singleton == null){
-			this.singleton = new Biblioteca();
+			singleton = new Biblioteca();
 		}
 		return singleton;
 	}
@@ -247,6 +247,146 @@ public class Biblioteca {
 		}
 		
 	}
+	
+	public void gravarUsuarioEmAquivo(String nomeArquivoAluno, String nomeArquivoProfessor) throws IOException {
+		BufferedWriter gravadorAluno = null;
+		BufferedWriter gravadorProfessor = null;
+		try{
+			gravadorAluno = new BufferedWriter(new FileWriter(nomeArquivoAluno));
+			gravadorProfessor = new BufferedWriter(new FileWriter(nomeArquivoProfessor));
+			for (Usuario u: this.usuarios){
+				if(u.getQuantDiasEmprestimo() == 10){
+					gravadorAluno.write(u.getNome());
+					gravadorAluno.newLine();
+					gravadorAluno.write(u.getMatricula());
+					gravadorAluno.newLine();
+					gravadorAluno.write(u.getCPF());
+					gravadorAluno.newLine();
+					gravadorAluno.write(u.getPeriodoIngresso());
+					gravadorAluno.newLine();
+					gravadorAluno.write(u.getCurso());
+					gravadorAluno.newLine();
+				}else{
+					gravadorProfessor.write(u.getNome());
+					gravadorProfessor.newLine();
+					gravadorProfessor.write(u.getMatricula());
+					gravadorProfessor.newLine();
+					gravadorProfessor.write(u.getCPF());
+					gravadorProfessor.newLine();
+					gravadorProfessor.write(u.getDepartamento());
+					gravadorProfessor.newLine();
+				}
+			}
+		}
+		finally{
+			if(gravadorAluno != null && gravadorProfessor !=null){
+				gravadorAluno.close();
+				gravadorProfessor.close();
+			}
+		}
+	}
+	
+	public void gravarLivroEmArquivo(String nomeArquivo) throws IOException{
+		BufferedWriter gravadorLivro = null;
+		
+		try{
+			gravadorLivro = new BufferedWriter(new FileWriter(nomeArquivo));		
+			for(Livro l: this.livros){
+				gravadorLivro.write(l.getNome());
+				gravadorLivro.newLine();
+				gravadorLivro.write(l.getCodigo());
+				gravadorLivro.newLine();
+				gravadorLivro.write(l.getAutor());
+				gravadorLivro.newLine();
+				gravadorLivro.write(l.getClassificacao());
+				gravadorLivro.newLine();
+				gravadorLivro.write(l.getQuantidade());
+				gravadorLivro.newLine();
+			}		
+		}
+		finally{
+			if(gravadorLivro != null){
+				gravadorLivro.close();
+			}
+		}
+	}
+	
+	public void carregarAlunoDeArquivo(String nomeArquivoAluno) throws UsuarioJaExisteException, IOException{
+		BufferedReader leitorAluno = null;
+		
+		try{
+			leitorAluno = new BufferedReader(new FileReader(nomeArquivoAluno));
+			String nomeAluno = null;
+
+			do{
+				nomeAluno = leitorAluno.readLine();
+				if(nomeAluno != null){
+					String matricula = leitorAluno.readLine();
+					String cpf = leitorAluno.readLine();
+					String curso = leitorAluno.readLine();
+					String periodoIngresso = leitorAluno.readLine();
+					Usuario u = new Aluno(nomeAluno, matricula, cpf, curso, periodoIngresso);
+					this.CadastrarUsuario(u);
+				}
+			}while(nomeAluno != null);
+		}
+		finally{
+			if(leitorAluno == null){
+				leitorAluno.close();
+			}
+		}
+	}
+	
+	public void carregarProfessorDeArquivo(String nomeArquivoProfessor) throws UsuarioJaExisteException, IOException{ 
+		BufferedReader leitorProfessor = null; 
+		try{ 
+			leitorProfessor = new BufferedReader(new FileReader (nomeArquivoProfessor)); 
+			String nomeProfessor = null; 
+			
+			do{ 
+				nomeProfessor = leitorProfessor.readLine();
+				if(nomeProfessor!= null){  
+					String matriculaProfessor = leitorProfessor.readLine(); 
+					String cpfProfessor = leitorProfessor.readLine(); 
+					String departamento = leitorProfessor.readLine(); 
+					Usuario u = new Professor(nomeProfessor, matriculaProfessor, cpfProfessor, departamento); 
+					this.CadastrarUsuario(u); 
+				} 
+			} while(nomeProfessor != null); 
+			
+		} finally{ 
+			if(leitorProfessor!=null){ 
+				leitorProfessor.close(); 
+			} 
+		} 
+	}
+	
+	public void carregarLivroEmArquivo(String arquivoLivro)throws IOException {
+
+		BufferedReader leitor = null; 
+		try { 
+			leitor = new BufferedReader(new FileReader(arquivoLivro)); 
+			String nomeDoLivro = null; 
+			
+			do { 
+				nomeDoLivro = leitor.readLine();
+				if (nomeDoLivro != null) {
+					String codigo = leitor.readLine(); 
+					String autor = leitor.readLine(); 
+					String classificacao = leitor.readLine(); 
+					int quantidade = leitor.read(); 
+					Livro l = new Livro (nomeDoLivro, autor, codigo, classificacao,quantidade); 
+					this.CadastrarLivro(l); 
+				} 
+			} while (nomeDoLivro!= null); 
+			
+		} finally { 
+			if (leitor != null) { 
+				leitor.close(); 
+			}
+		}
+	}
+
 	
 	
 	
