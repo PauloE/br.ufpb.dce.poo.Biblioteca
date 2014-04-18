@@ -13,6 +13,7 @@ import java.util.Date;
 import ExceptionPackage.*;
 
 public class Biblioteca {
+	
 	private Configuracao configuracao = Configuracao.getInstance();
 	private List<Livro> livros;
 	private List<Emprestimo> emprestimosAtivos;
@@ -32,25 +33,26 @@ public class Biblioteca {
 		return singleton;
 	}
 	
-	public void CadastrarLivro (Livro l){
-		for (Livro lv: this.livros){
-			if (lv.getCodigo().equals(l.getCodigo())){
-				lv.setQuantidade(lv.getQuantidade()+l.getQuantidade());
-			}
-			
-		}
-		this.livros.add(l);
-	}
-	
-	public void CadastrarUsuario (Usuario u) throws UsuarioJaExisteException{
+	public void cadastrarUsuario (Usuario u) throws UsuarioJaExisteException{
 		if(this.usuarios.contains(u)){
 			throw new UsuarioJaExisteException ("O usuario ja existe");
 		}
 		this.usuarios.add(u);
 	}
 	
+	public void cadastrarLivro(Livro livro){
+		for (Livro lv: this.livros){
+			if (lv.getCodigo().equals(livro.getCodigo())){
+				lv.setQuantidade(lv.getQuantidade()+livro.getQuantidade());
+			}
+			
+		}
+		this.livros.add(livro);
+	}
+	
 	public Usuario getUsuario(String mat) throws UsuarioInexistenteException{
-		for (Usuario u: usuarios){
+		
+		for (Usuario u: this.usuarios){
 			if (u.getMatricula().equals(mat)){
 				return u;
 			}
@@ -67,93 +69,84 @@ public class Biblioteca {
 		throw new LivroInexistenteException ("Este livro nao esta cadastrado";
 	}
 	
-	public List<Emprestimo> listarEmprestimosEmAtraso () throws ListaDeAtrasoInexistenteException{
+	public List<Emprestimo> listarEmprestimosEmAtraso(){
+		
 		Calendar DiaDeHoje = Calendar.getInstance();
-		List<Emprestimo> atraso = new LinkedList<Emprestimo>();
+		List<Emprestimo> atrasos = new LinkedList<Emprestimo>();
 		for (Emprestimo e: this.emprestimosAtivos){
 			if (e.getDataDevolucao().before(DiaDeHoje)){
-				atraso.add(e);
+				atrasos.add(e);
 			}
 		}
 
-		return atraso;
+		return atrasos;
 		
 	}
 	
-	public double calcularMulta (Usuario u) throws ListaDeAtrasoInexistenteException{
+	public double calcularMulta(Usuario u){
 		
 		long diasAtraso = 0;
-		Configuracao c = Configuracao.getInstance();
-		double total = 0;
 		for (Emprestimo e: this.listarEmprestimosEmAtraso()){
-			if (e.getUsuario().equals(u)){
+			if (e.getUsuario().getMatricula().equals(u.getMatricula())){
 				diasAtraso += diasEntre(e.getDataDevolucao(), Calendar.getInstance());
 			}
 			
 		}
-		total = diasAtraso * c.getValorMulta();
 		
-		return total;
-		
+		return diasAtraso * this.configuracao.getValorMulta();
 		
 	}
 	
 	public long diasEntre(Calendar a, Calendar b){ 
+		
+		int tempoDia = 1000 * 60 * 60 * 24;
 		Calendar dInicial = a;
 		Calendar dFinal = b;
 		long diferenca = dFinal.getTimeInMillis() - dInicial.getTimeInMillis();
-		int tempoDia = 1000 * 60 * 60 * 24;
-		long diasDiferenca = diferenca / tempoDia;
-		return diasDiferenca;
-	   }
-	
-	public Calendar calculaDataDevolucaoProfessor(){
-		Calendar dataAtual = Calendar.getInstance();
-		System.out.println(dataAtual);
-		dataAtual.set(Calendar.DAY_OF_MONTH, 30);
-		System.out.println(dataAtual);
+		return diferenca / tempoDia;
 		
-		return dataAtual;
 	}
 	
-	public void emprestarLivro (Usuario u, Livro lv) throws NumeroDeLivrosEmprestadosException, UsuarioEmAtrasoException, QuantidadeDeLivrosInsuficienteException, ListaDeAtrasoInexistenteException{
-		if (u.getEmprestimos().size() == 3){
-			throw new NumeroDeLivrosEmprestadosException ("Usuario atingiu limite de emprestimos");
+	public void emprestarLivro (Usuario usuario, Livro livro) throws MaximoDeLivrosEmprestadosException, UsuarioEmAtrasoException, QuantidadeDeLivrosInsuficienteException, ListaDeAtrasoInexistenteException{
+		
+		int quantidadeMaxEmprestimo = 3;
+		if (usuario.getEmprestimos().size() == quantidadeMaxEmprestimo){
+			throw new MaximoDeLivrosEmprestadosException ("Usuario atingiu limite de emprestimos");
 		}
-		if(this.listarEmprestimosEmAtraso().contains(u)){
+		if(this.listarEmprestimosEmAtraso().contains(usuario)){
 			throw new UsuarioEmAtrasoException("O usuario esta com devoluçao em atraso.");
 		}
 		for (Livro l: this.livros){
-			if (l.getCodigo().equals(lv.getCodigo()) && l.getQuantidade() == 1){
+			if (l.getCodigo().equals(livro.getCodigo()) && l.getQuantidade() == 1){
 				throw new QuantidadeDeLivrosInsuficienteException("Quantidade de livros insuficiente para emprestimo.");
 			}
 		}
 		
 		Calendar diaDevolucao = Calendar.getInstance();
 		diaDevolucao.add(Calendar.DAY_OF_YEAR, u.getQuantDiasEmprestimo());
-		Emprestimo e = new Emprestimo (u, lv, Calendar.getInstance(), diaDevolucao);
-		for (Livro livro: this.livros){
-			if (livro.getCodigo().equals(lv.getCodigo())){
+		Emprestimo novoEmprestimo = new Emprestimo (usuario, livro, Calendar.getInstance(), diaDevolucao);
+		for (Livro lv: this.livros){
+			if (lv.getCodigo().equals(livro.getCodigo())){
 				lv.setQuantidade(lv.getQuantidade()-1);
 			}
 		}
-		this.emprestimosAtivos.add(e);
-		u.adicionarEmprestimo(e);		
+		this.emprestimosAtivos.add(novoEmprestimo);
+		usuario.adicionarEmprestimo(novoEmprestimo);		
 			
 	}
 	
-	public void devolverLivro (Usuario u, Livro lv)throws EmprestimoInexistenteException{
+	public void devolverLivro (Usuario usuario, Livro livro)throws EmprestimoInexistenteException{
 		boolean emprestou = false;
-		for (Emprestimo el: u.getEmprestimos()){
-			if (el.getLivro().equals(lv)){
-				for (Emprestimo el2: this.emprestimosAtivos){
-					if (el2.getLivro().equals(lv) && el2.getUsuario().equals(u)){
-						this.emprestimosAtivos.remove(el2);
-						u.getEmprestimos().remove(el2);
+		for (Emprestimo emprestimoUsuario: usuario.getEmprestimos()){
+			if (emprestimoUsuario.getLivro().getCodigo().equals(livro.getCodigo)){
+				for (Emprestimo emprestimoBiblioteca: this.emprestimosAtivos){
+					if (emprestimoBiblioteca.getLivro().getCodigo().equals(livro.getCodigo()) && emprestimoBiblioteca.getUsuario().getMatricula().equals(usuario.getMatricula())){
+						this.emprestimosAtivos.remove(emprestimoBiblioteca);
+						usuario.getEmprestimos().remove(emprestimoBiblioteca);
 						emprestou = true;
-						for (Livro livro : this.livros){
-							if (livro.getCodigo().equals(lv.getCodigo())){
-								livro.setQuantidade(livro.getQuantidade()+1);
+						for (Livro lv : this.livros){
+							if (lv.getCodigo().equals(livro.getCodigo())){
+								lv.setQuantidade(lv.getQuantidade()+1);
 							}
 						}
 					}
@@ -168,6 +161,147 @@ public class Biblioteca {
 	
 	
 	//##########################       PERSISTENCIA DE ARQUIVOS      ############################################
+	
+
+	
+	public void gravarUsuariosEmAquivo(String nomeArquivoAluno, String nomeArquivoProfessor) throws IOException {
+		BufferedWriter gravadorAluno = null;
+		BufferedWriter gravadorProfessor = null;
+		try{
+			gravadorAluno = new BufferedWriter(new FileWriter(nomeArquivoAluno));
+			gravadorProfessor = new BufferedWriter(new FileWriter(nomeArquivoProfessor));
+			for (Usuario usuario: this.usuarios){
+				if(usuario.getQuantDiasEmprestimo() == 10){
+					gravadorAluno.write(usuario.getNome());
+					gravadorAluno.newLine();
+					gravadorAluno.write(usuario.getMatricula());
+					gravadorAluno.newLine();
+					gravadorAluno.write(usuario.getCPF());
+					gravadorAluno.newLine();
+					gravadorAluno.write(usuario.getPeriodoIngresso());
+					gravadorAluno.newLine();
+					gravadorAluno.write(usuario.getCurso());
+					gravadorAluno.newLine();
+				}else{
+					gravadorProfessor.write(usuario.getNome());
+					gravadorProfessor.newLine();
+					gravadorProfessor.write(usuario.getMatricula());
+					gravadorProfessor.newLine();
+					gravadorProfessor.write(usuario.getCPF());
+					gravadorProfessor.newLine();
+					gravadorProfessor.write(usuario.getDepartamento());
+					gravadorProfessor.newLine();
+				}
+			}
+		}
+		finally{
+			if(gravadorAluno != null && gravadorProfessor !=null){
+				gravadorAluno.close();
+				gravadorProfessor.close();
+			}
+		}
+	}
+	
+	public void carregarAlunosDeArquivo(String nomeArquivoAluno) throws UsuarioJaExisteException, IOException{
+		BufferedReader leitorAluno = null;
+		
+		try{
+			leitorAluno = new BufferedReader(new FileReader(nomeArquivoAluno));
+			String nomeAluno = null;
+
+			do{
+				nomeAluno = leitorAluno.readLine();
+				if(nomeAluno != null){
+					String matricula = leitorAluno.readLine();
+					String cpf = leitorAluno.readLine();
+					String curso = leitorAluno.readLine();
+					String periodoIngresso = leitorAluno.readLine();
+					Usuario u = new Aluno(nomeAluno, matricula, cpf, curso, periodoIngresso);
+					this.cadastrarUsuario(u);
+				}
+			}while(nomeAluno != null);
+		}
+		finally{
+			if(leitorAluno == null){
+				leitorAluno.close();
+			}
+		}
+	}
+	
+	public void carregarProfessoresDeArquivo(String nomeArquivoProfessor) throws UsuarioJaExisteException, IOException{ 
+		BufferedReader leitorProfessor = null; 
+		try{ 
+			leitorProfessor = new BufferedReader(new FileReader (nomeArquivoProfessor)); 
+			String nomeProfessor = null; 
+			
+			do{ 
+				nomeProfessor = leitorProfessor.readLine();
+				if(nomeProfessor!= null){  
+					String matriculaProfessor = leitorProfessor.readLine(); 
+					String cpfProfessor = leitorProfessor.readLine(); 
+					String departamento = leitorProfessor.readLine(); 
+					Usuario u = new Professor(nomeProfessor, matriculaProfessor, cpfProfessor, departamento); 
+					this.cadastrarUsuario(u); 
+				} 
+			} while(nomeProfessor != null); 
+			
+		} finally{ 
+			if(leitorProfessor!=null){ 
+				leitorProfessor.close(); 
+			} 
+		} 
+	}
+	
+	public void gravarLivrosEmArquivo(String nomeArquivo) throws IOException{
+		BufferedWriter gravadorLivro = null;
+		
+		try{
+			gravadorLivro = new BufferedWriter(new FileWriter(nomeArquivo));		
+			for(Livro l: this.livros){
+				gravadorLivro.write(l.getNome());
+				gravadorLivro.newLine();
+				gravadorLivro.write(l.getCodigo());
+				gravadorLivro.newLine();
+				gravadorLivro.write(l.getAutor());
+				gravadorLivro.newLine();
+				gravadorLivro.write(l.getClassificacao());
+				gravadorLivro.newLine();
+				gravadorLivro.write(l.getQuantidade());
+				gravadorLivro.newLine();
+			}		
+		}
+		finally{
+			if(gravadorLivro != null){
+				gravadorLivro.close();
+			}
+		}
+	}
+	
+	public void carregarLivrosDeArquivo(String arquivoLivro)throws IOException {
+
+		BufferedReader leitor = null; 
+		try { 
+			leitor = new BufferedReader(new FileReader(arquivoLivro)); 
+			String nomeDoLivro = null; 
+			
+			do { 
+				nomeDoLivro = leitor.readLine();
+				if (nomeDoLivro != null) {
+					String codigo = leitor.readLine(); 
+					String autor = leitor.readLine(); 
+					String classificacao = leitor.readLine(); 
+					int quantidade = leitor.read(); 
+					Livro l = new Livro (nomeDoLivro, autor, codigo, quantidade,classificacao); 
+					this.cadastrarLivro(l); 
+				} 
+			} while (nomeDoLivro!= null); 
+			
+		} finally { 
+			if (leitor != null) { 
+				leitor.close(); 
+			}
+		}
+	}
 	
 	public void gravarEmprestimosEmArquivo(String nomeArquivo) throws IOException {
 		BufferedWriter gravador = null;
@@ -209,7 +343,7 @@ public class Biblioteca {
 			
 			
 			do {
-				matricula = leitor.readLine(); // le a proxima linha do arquivo: matricula do usuario
+				matricula = leitor.readLine(); 
 				codigoLivro = leitor.readLine();
 				
 				diaEmprestimo = leitor.readLine();
@@ -235,7 +369,7 @@ public class Biblioteca {
 				usuario.adicionarEmprestimo(emprestimo);
 				
 			} 
-			while(matricula != null); //vai ser null quando chegar no fim do arquivo
+			while(matricula != null); 
 		} 
 		finally {
 			if (leitor!=null){
@@ -244,177 +378,10 @@ public class Biblioteca {
 		}
 		
 	}
-	
-	public void gravarUsuarioEmAquivo(String nomeArquivoAluno, String nomeArquivoProfessor) throws IOException {
-		BufferedWriter gravadorAluno = null;
-		BufferedWriter gravadorProfessor = null;
-		try{
-			gravadorAluno = new BufferedWriter(new FileWriter(nomeArquivoAluno));
-			gravadorProfessor = new BufferedWriter(new FileWriter(nomeArquivoProfessor));
-			for (Usuario u: this.usuarios){
-				if(u.getQuantDiasEmprestimo() == 10){
-					gravadorAluno.write(u.getNome());
-					gravadorAluno.newLine();
-					gravadorAluno.write(u.getMatricula());
-					gravadorAluno.newLine();
-					gravadorAluno.write(u.getCPF());
-					gravadorAluno.newLine();
-					gravadorAluno.write(u.getPeriodoIngresso());
-					gravadorAluno.newLine();
-					gravadorAluno.write(u.getCurso());
-					gravadorAluno.newLine();
-				}else{
-					gravadorProfessor.write(u.getNome());
-					gravadorProfessor.newLine();
-					gravadorProfessor.write(u.getMatricula());
-					gravadorProfessor.newLine();
-					gravadorProfessor.write(u.getCPF());
-					gravadorProfessor.newLine();
-					gravadorProfessor.write(u.getDepartamento());
-					gravadorProfessor.newLine();
-				}
-			}
-		}
-		finally{
-			if(gravadorAluno != null && gravadorProfessor !=null){
-				gravadorAluno.close();
-				gravadorProfessor.close();
-			}
-		}
-	}
-	
-	public void gravarLivroEmArquivo(String nomeArquivo) throws IOException{
-		BufferedWriter gravadorLivro = null;
-		
-		try{
-			gravadorLivro = new BufferedWriter(new FileWriter(nomeArquivo));		
-			for(Livro l: this.livros){
-				gravadorLivro.write(l.getNome());
-				gravadorLivro.newLine();
-				gravadorLivro.write(l.getCodigo());
-				gravadorLivro.newLine();
-				gravadorLivro.write(l.getAutor());
-				gravadorLivro.newLine();
-				gravadorLivro.write(l.getClassificacao());
-				gravadorLivro.newLine();
-				gravadorLivro.write(l.getQuantidade());
-				gravadorLivro.newLine();
-			}		
-		}
-		finally{
-			if(gravadorLivro != null){
-				gravadorLivro.close();
-			}
-		}
-	}
-	
-	public void carregarAlunoDeArquivo(String nomeArquivoAluno) throws UsuarioJaExisteException, IOException{
-		BufferedReader leitorAluno = null;
-		
-		try{
-			leitorAluno = new BufferedReader(new FileReader(nomeArquivoAluno));
-			String nomeAluno = null;
 
-			do{
-				nomeAluno = leitorAluno.readLine();
-				if(nomeAluno != null){
-					String matricula = leitorAluno.readLine();
-					String cpf = leitorAluno.readLine();
-					String curso = leitorAluno.readLine();
-					String periodoIngresso = leitorAluno.readLine();
-					Usuario u = new Aluno(nomeAluno, matricula, cpf, curso, periodoIngresso);
-					this.CadastrarUsuario(u);
-				}
-			}while(nomeAluno != null);
-		}
-		finally{
-			if(leitorAluno == null){
-				leitorAluno.close();
-			}
-		}
-	}
-	
-	public void carregarProfessorDeArquivo(String nomeArquivoProfessor) throws UsuarioJaExisteException, IOException{ 
-		BufferedReader leitorProfessor = null; 
-		try{ 
-			leitorProfessor = new BufferedReader(new FileReader (nomeArquivoProfessor)); 
-			String nomeProfessor = null; 
-			
-			do{ 
-				nomeProfessor = leitorProfessor.readLine();
-				if(nomeProfessor!= null){  
-					String matriculaProfessor = leitorProfessor.readLine(); 
-					String cpfProfessor = leitorProfessor.readLine(); 
-					String departamento = leitorProfessor.readLine(); 
-					Usuario u = new Professor(nomeProfessor, matriculaProfessor, cpfProfessor, departamento); 
-					this.CadastrarUsuario(u); 
-				} 
-			} while(nomeProfessor != null); 
-			
-		} finally{ 
-			if(leitorProfessor!=null){ 
-				leitorProfessor.close(); 
-			} 
-		} 
-	}
-	
-	public void carregarLivroDeArquivo(String arquivoLivro)throws IOException {
 
-		BufferedReader leitor = null; 
-		try { 
-			leitor = new BufferedReader(new FileReader(arquivoLivro)); 
-			String nomeDoLivro = null; 
-			
-			do { 
-				nomeDoLivro = leitor.readLine();
-				if (nomeDoLivro != null) {
-					String codigo = leitor.readLine(); 
-					String autor = leitor.readLine(); 
-					String classificacao = leitor.readLine(); 
-					int quantidade = leitor.read(); 
-					Livro l = new Livro (nomeDoLivro, autor, codigo, quantidade,classificacao); 
-					this.CadastrarLivro(l); 
-				} 
-			} while (nomeDoLivro!= null); 
-			
-		} finally { 
-			if (leitor != null) { 
-				leitor.close(); 
-			}
-		}
-	}
 
-	
-	
-	
-	public static void main(String[] args) {
-		
-		Biblioteca bib = new Biblioteca();
-		bib.CadastrarUsuario(new Aluno("Odravison", "12345", ""));
-		
-		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 }
 
