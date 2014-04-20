@@ -15,6 +15,7 @@ public abstract class UsuarioComposto implements Usuario {
 		this.nome = nome;
 		this.matricula = matricula;
 		this.cpf = cpf;
+		this.emprestimos = new LinkedList<Emprestimo>();
 	}
 	
 	public void adicionarEmprestimo(Emprestimo e){
