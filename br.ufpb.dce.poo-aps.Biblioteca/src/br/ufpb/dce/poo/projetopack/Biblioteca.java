@@ -365,8 +365,8 @@ public class Biblioteca {
 				
 				Emprestimo emprestimo = new Emprestimo(usuario, livro, dataEmprestimo, dataDevolucao);
 				
-				this.emprestimosAtivos.add(emprestimo);
 				usuario.adicionarEmprestimo(emprestimo);
+				this.emprestimosAtivos.add(emprestimo);
 				
 			} 
 			while(matricula != null); 
