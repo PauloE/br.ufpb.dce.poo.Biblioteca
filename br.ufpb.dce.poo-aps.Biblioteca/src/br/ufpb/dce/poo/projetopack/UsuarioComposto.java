@@ -1,5 +1,6 @@
 package br.ufpb.dce.poo.projetopack;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class UsuarioComposto implements Usuario {
