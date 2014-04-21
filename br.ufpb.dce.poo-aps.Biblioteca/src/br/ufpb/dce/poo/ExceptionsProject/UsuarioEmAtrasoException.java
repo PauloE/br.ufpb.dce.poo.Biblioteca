@@ -1,9 +1,6 @@
-package br.ufpb.dce.poo.projetopack;
+package br.ufpb.dce.poo.ExceptionsProject;
 
 public class UsuarioEmAtrasoException extends Exception {
-
-	private static final long serialVersionUID = 1L;
-
 	public UsuarioEmAtrasoException (String msg){
 		super(msg);
 	}
