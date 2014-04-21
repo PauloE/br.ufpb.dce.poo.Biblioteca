@@ -1,16 +1,14 @@
 package br.ufpb.dce.poo.projetopack;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Calendar;
-import java.util.Date;
-
-import ExceptionPackage.*;
+import br.ufpb.dce.poo.ExceptionsProject.*;
 
 public class Biblioteca {
 	
@@ -66,7 +64,7 @@ public class Biblioteca {
 				return l;
 			}
 		}
-		throw new LivroInexistenteException ("Este livro nao esta cadastrado";
+		throw new LivroInexistenteException ("Este livro nao esta cadastrado");
 	}
 	
 	public List<Emprestimo> listarEmprestimosEmAtraso(){
@@ -123,7 +121,7 @@ public class Biblioteca {
 		}
 		
 		Calendar diaDevolucao = Calendar.getInstance();
-		diaDevolucao.add(Calendar.DAY_OF_YEAR, u.getQuantDiasEmprestimo());
+		diaDevolucao.add(Calendar.DAY_OF_YEAR, usuario.getQuantDiasEmprestimo());
 		Emprestimo novoEmprestimo = new Emprestimo (usuario, livro, Calendar.getInstance(), diaDevolucao);
 		for (Livro lv: this.livros){
 			if (lv.getCodigo().equals(livro.getCodigo())){
@@ -138,7 +136,7 @@ public class Biblioteca {
 	public void devolverLivro (Usuario usuario, Livro livro)throws EmprestimoInexistenteException{
 		boolean emprestou = false;
 		for (Emprestimo emprestimoUsuario: usuario.getEmprestimos()){
-			if (emprestimoUsuario.getLivro().getCodigo().equals(livro.getCodigo)){
+			if (emprestimoUsuario.getLivro().getCodigo().equals(livro.getCodigo())){
 				for (Emprestimo emprestimoBiblioteca: this.emprestimosAtivos){
 					if (emprestimoBiblioteca.getLivro().getCodigo().equals(livro.getCodigo()) && emprestimoBiblioteca.getUsuario().getMatricula().equals(usuario.getMatricula())){
 						this.emprestimosAtivos.remove(emprestimoBiblioteca);
