@@ -1,11 +1,7 @@
-package br.ufpb.dce.poo.projetopack;
+package br.ufpb.dce.poo.ExceptionsProject;
 
 public class EmprestimoJaExisteException extends Exception {
-
-	private static final long serialVersionUID = 1L;
-
 	public EmprestimoJaExisteException(String msg){
 		super(msg);
 	}
-
 }
